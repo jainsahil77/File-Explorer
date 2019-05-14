@@ -21,6 +21,9 @@ import pvt.filedetails.utility.Enums.ValidateDirectoryError;
 import pvt.filedetails.utility.FileUtility;
 
 /**
+ * This class provides a Dialogue box for getting valid input directory for
+ * processing. It creates the processor objects and launches ExplorerWindow
+ * 
  * @author Sahil Jain
  *
  */
@@ -30,7 +33,7 @@ public class InputDirectoryDialogue {
 	private JTextField inputDirectoryPath;
 
 	/**
-	 * Launch the application.
+	 * Launch the dialogue window.
 	 */
 	public static void launchInputDirectoryDialogue() {
 		EventQueue.invokeLater(new Runnable() {
@@ -46,7 +49,7 @@ public class InputDirectoryDialogue {
 	}
 
 	/**
-	 * Create the application.
+	 * Create the dialogue window.
 	 */
 	public InputDirectoryDialogue() {
 		initialize();
@@ -126,7 +129,6 @@ public class InputDirectoryDialogue {
 		btnValidatePath.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnValidatePath.setBounds(513, 113, 143, 31);
 		inputDialogueFrame.getContentPane().add(btnValidatePath);
-
 		inputDialogueFrame.getContentPane().add(lblValidPathMessage);
 	}
 }

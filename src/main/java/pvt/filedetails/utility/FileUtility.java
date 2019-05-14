@@ -10,10 +10,22 @@ import org.apache.commons.lang3.StringUtils;
 import pvt.filedetails.utility.Enums.ValidateDirectoryError;
 
 /**
+ * This class contains utility methods for Files
+ * 
  * @author Sahil Jain
  *
  */
 public class FileUtility {
+	private FileUtility() {
+		// Adding a private constructor to hide the implicit public one.
+	}
+
+	/**
+	 * This method validates whether given directory is valid or not
+	 * 
+	 * @param directory
+	 * @return true iff the given path is a directory
+	 */
 	public static ValidateDirectoryError validateDirectory(String directory) {
 		File file = new File(directory);
 		if (StringUtils.isNotBlank(directory)) {
@@ -31,6 +43,12 @@ public class FileUtility {
 		}
 	}
 
+	/**
+	 * This method gets file extension
+	 * 
+	 * @param fileName
+	 * @return extension of the given file name
+	 */
 	public static String getFileExtension(String fileName) {
 		String extension = "";
 		int lastIndexOf = fileName.lastIndexOf('.');

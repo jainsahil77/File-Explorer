@@ -344,4 +344,10 @@ public class ExplorerWindow {
 		final JPanel panel = new JPanel();
 		JOptionPane.showMessageDialog(panel, errorMessage, "Error", JOptionPane.WARNING_MESSAGE);
 	}
+
+	private void getSelectedTableData() {
+//		getValueAt(int row, int column)
+//		getSelectedRow()
+//		getSelectedColumn()
+	}
 }

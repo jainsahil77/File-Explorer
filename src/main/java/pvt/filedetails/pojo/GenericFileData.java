@@ -4,6 +4,9 @@
 package pvt.filedetails.pojo;
 
 /**
+ * This class contains generic file propertis which are common for both files
+ * and folders
+ * 
  * @author Sahil Jain
  *
  */
@@ -69,6 +72,14 @@ public class GenericFileData {
 		this.size = size;
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param name
+	 * @param path
+	 * @param size
+	 * @param type
+	 */
 	public GenericFileData(String name, String path, long size, String type) {
 		this.name = name;
 		this.path = path;

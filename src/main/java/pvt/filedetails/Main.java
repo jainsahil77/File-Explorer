@@ -10,8 +10,16 @@ import pvt.filedetails.utility.GenericConfigurations;
 /**
  * @author Sahil Jain
  *
+ *         Main class for starting the application based on the selected
+ *         configuration (Console, GUI desktop or Web) For GUI based desktop
+ *         application it launches a dialogue box for input directory
  */
 public class Main {
+	/**
+	 * Main method for starting application and initialization of configurations
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		try (Scanner scannerObj = new Scanner(System.in)) {
 			boolean initializeConfigurations = GenericConfigurations.initializeConfigurations();
@@ -40,6 +48,12 @@ public class Main {
 		}
 	}
 
+	/**
+	 * Console based application start
+	 * 
+	 * @param scannerObj
+	 * @param initializeConfigurations
+	 */
 	private static void consoleBasedProcess(Scanner scannerObj, boolean initializeConfigurations) {
 		System.out.println("Properties initialized: " + initializeConfigurations);
 		System.out.println("Enter Directory Path:");

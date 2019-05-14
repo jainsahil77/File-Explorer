@@ -14,6 +14,9 @@ import pvt.filedetails.pojo.FileProperties;
 import pvt.filedetails.pojo.FolderProperties;
 
 /**
+ * Class for storing operation data so that the processing will not be required
+ * when operation is performed
+ * 
  * @author Sahil Jain
  *
  */
@@ -30,12 +33,21 @@ public class GUIData {
 		this.allFileData = new LinkedList<>();
 	}
 
+	/**
+	 * This method clears all maps
+	 */
 	public void clearData() {
 		folderContentData.clear();
 		allFoldersData.clear();
 		allFileData.clear();
 	}
 
+	/**
+	 * This method returns content of the given folder path in list format
+	 * 
+	 * @param folderPath
+	 * @return list of FileProperties/FolderProperties array object
+	 */
 	public List<String[]> getFolderContent(String folderPath) {
 		if (this.folderContentData.isEmpty()) {
 			Map<String, List<String>> folderContent = this.sharedResources.getFolderContent();
@@ -57,6 +69,11 @@ public class GUIData {
 		return this.folderContentData;
 	}
 
+	/**
+	 * This method returns all folder properties
+	 * 
+	 * @return list of FolderProperties arrays
+	 */
 	public List<String[]> getAllFoldersDetails() {
 		if (this.allFoldersData.isEmpty()) {
 			Iterator<Entry<String, FolderProperties>> iterator = this.sharedResources.getFolderDetails().entrySet()
@@ -69,6 +86,11 @@ public class GUIData {
 		return this.allFoldersData;
 	}
 
+	/**
+	 * This method returns all file properties
+	 * 
+	 * @return list of FileProperties arrays
+	 */
 	public List<String[]> getAllFileDetails() {
 		if (this.allFileData.isEmpty()) {
 			Iterator<Entry<String, FileProperties>> iterator = this.sharedResources.getFileDetails().entrySet()

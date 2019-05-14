@@ -9,10 +9,17 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import pvt.filedetails.utility.Enums.ApplicationType;
 
 /**
+ * This class maintains generic configurations like application launch type and
+ * number of threads in fixed size threadpool
+ * 
  * @author Sahil Jain
  *
  */
 public class GenericConfigurations {
+	private GenericConfigurations() {
+		// Adding a private constructor to hide the implicit public one.
+	}
+
 	private static int threadPoolSize;
 	private static ApplicationType applicationType;
 
@@ -56,6 +63,12 @@ public class GenericConfigurations {
 		GenericConfigurations.threadPoolSize = threadPoolSize;
 	}
 
+	/**
+	 * This method initializes the configurations and returns boolean values based
+	 * on success or failure
+	 * 
+	 * @return true iff configurations successfully loaded
+	 */
 	public static boolean initializeConfigurations() {
 		boolean isConfigLoaded = false;
 		try (AbstractApplicationContext abstractApplicationContext = new FileSystemXmlApplicationContext(

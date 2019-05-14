@@ -11,6 +11,9 @@ import java.util.concurrent.Future;
 import pvt.filedetails.utility.Enums.ProcessingStatus;
 
 /**
+ * This class consists SharedResources object and starts processing with the
+ * given directory
+ * 
  * @author Sahil Jain
  *
  */
@@ -44,10 +47,17 @@ public class Processor {
 		this.sharedResources = new SharedResources();
 	}
 
+	/**
+	 * This method processes the parent directory by submitting the thread using the
+	 * fixed size threadpool from shared resources object It also updates the
+	 * processing status
+	 * 
+	 * @return Status message
+	 */
 	public String processParentDirectory() {
 		if (this.parentDirectory.exists() && !this.parentDirectory.isFile()) {
 			this.sharedResources.setProcessingStatus(ProcessingStatus.PENDING);
-			ProcessorRunnable processorRunnable = new ProcessorRunnable(this.sharedResources, this.parentDirectory);
+			ProcessorCallable processorRunnable = new ProcessorCallable(this.sharedResources, this.parentDirectory);
 			ExecutorService fixedThreadPool = this.sharedResources.getFixedThreadPool();
 			Future<?> future = fixedThreadPool.submit(processorRunnable);
 			this.sharedResources.setProcessingStatus(ProcessingStatus.PROCESSING);
@@ -65,6 +75,10 @@ public class Processor {
 		return processingStatus;
 	}
 
+	/**
+	 * Call sharedResources clear data method for clearing maps and terminating
+	 * threadpool
+	 */
 	public void shutDownProcessor() {
 		this.sharedResources.clearSharedResource();
 	}

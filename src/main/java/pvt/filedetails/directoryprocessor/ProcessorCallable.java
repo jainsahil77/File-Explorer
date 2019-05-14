@@ -15,14 +15,24 @@ import pvt.filedetails.utility.FileUtility;
 import pvt.filedetails.utility.Enums.ProcessingStatus;
 
 /**
+ * This class implements callable interface and processes the directory
+ * provided. It launches a thread from the fixed size thread pool for processing
+ * each new sub directory.
+ * 
  * @author Sahil Jain
  *
  */
-public class ProcessorRunnable implements Callable<ProcessingStatus> {
+public class ProcessorCallable implements Callable<ProcessingStatus> {
 	private SharedResources sharedResources;
 	private File folder;
 
-	public ProcessorRunnable(SharedResources sharedResources, File folder) {
+	/**
+	 * Constructor
+	 * 
+	 * @param sharedResources
+	 * @param folder
+	 */
+	public ProcessorCallable(SharedResources sharedResources, File folder) {
 		this.sharedResources = sharedResources;
 		this.folder = folder;
 	}
@@ -32,6 +42,14 @@ public class ProcessorRunnable implements Callable<ProcessingStatus> {
 		return this.processDirectory(this.folder);
 	}
 
+	/**
+	 * This method processes the input directory. Each file/folder is iterated. If a
+	 * file is found, it is processed and if folder is found a new thread is
+	 * launched for processing it from the fixed size threadpool
+	 * 
+	 * @param folder
+	 * @return ProcessingStatus of the given directory
+	 */
 	private ProcessingStatus processDirectory(File folder) {
 		File[] files = folder.listFiles();
 		List<String> fileNameList = new LinkedList<>();
@@ -44,7 +62,7 @@ public class ProcessorRunnable implements Callable<ProcessingStatus> {
 		for (File file : fileArray) {
 			fileNameList.add(file.getAbsolutePath());
 			if (file.isDirectory()) {
-				ProcessorRunnable processorRunnable = new ProcessorRunnable(this.sharedResources, file);
+				ProcessorCallable processorRunnable = new ProcessorCallable(this.sharedResources, file);
 				this.sharedResources.getFixedThreadPool().submit(processorRunnable);
 			} else {
 				this.processFile(file);
@@ -54,6 +72,11 @@ public class ProcessorRunnable implements Callable<ProcessingStatus> {
 		return ProcessingStatus.COMPLETED;
 	}
 
+	/**
+	 * This method processes the given file
+	 * 
+	 * @param file
+	 */
 	private void processFile(File file) {
 		long fileSize = file.length();
 		String fileName = file.getName();

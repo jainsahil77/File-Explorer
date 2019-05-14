@@ -12,6 +12,8 @@ import pvt.filedetails.utility.Enums.ProcessingStatus;
 import pvt.filedetails.utility.GenericConfigurations;
 
 /**
+ * This class contains objects which are used in the project
+ * 
  * @author Sahil Jain
  *
  */
@@ -79,6 +81,9 @@ public class SharedResources {
 		this.fixedThreadPool = Executors.newFixedThreadPool(GenericConfigurations.getThreadPoolSize());
 	}
 
+	/**
+	 * This method clears all the shared maps and shuts down the threadpool
+	 */
 	public void clearSharedResource() {
 		this.folderDetails.clear();
 		this.fileDetails.clear();
