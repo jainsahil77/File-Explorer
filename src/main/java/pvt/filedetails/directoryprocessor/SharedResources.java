@@ -78,4 +78,11 @@ public class SharedResources {
 		this.processingStatus = ProcessingStatus.PENDING;
 		this.fixedThreadPool = Executors.newFixedThreadPool(GenericConfigurations.getThreadPoolSize());
 	}
+
+	public void clearSharedResource() {
+		this.folderDetails.clear();
+		this.fileDetails.clear();
+		this.folderContent.clear();
+		this.fixedThreadPool.shutdownNow();
+	}
 }

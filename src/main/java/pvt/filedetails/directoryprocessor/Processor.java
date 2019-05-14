@@ -46,6 +46,7 @@ public class Processor {
 
 	public String processParentDirectory() {
 		if (this.parentDirectory.exists() && !this.parentDirectory.isFile()) {
+			this.sharedResources.setProcessingStatus(ProcessingStatus.PENDING);
 			ProcessorRunnable processorRunnable = new ProcessorRunnable(this.sharedResources, this.parentDirectory);
 			ExecutorService fixedThreadPool = this.sharedResources.getFixedThreadPool();
 			Future<?> future = fixedThreadPool.submit(processorRunnable);
@@ -62,5 +63,9 @@ public class Processor {
 		String processingStatus = this.sharedResources.getProcessingStatus().getProcessingStatus();
 		System.out.println(processingStatus);
 		return processingStatus;
+	}
+
+	public void shutDownProcessor() {
+		this.sharedResources.clearSharedResource();
 	}
 }

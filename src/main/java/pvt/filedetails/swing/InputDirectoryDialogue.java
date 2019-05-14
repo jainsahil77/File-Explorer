@@ -92,7 +92,6 @@ public class InputDirectoryDialogue {
 					Processor processor = new Processor(directoryFile);
 					ExplorerWindow.launchExplorerWindow(processor);
 					inputDialogueFrame.dispose();
-					processor.processParentDirectory();
 				} else {
 					lblValidPathMessage.setForeground(Color.RED);
 					lblValidPathMessage.setText(FileUtility.validateDirectory(directory).getErrorMessage());

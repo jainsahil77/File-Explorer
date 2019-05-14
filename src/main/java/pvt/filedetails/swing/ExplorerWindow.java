@@ -4,8 +4,10 @@
 package pvt.filedetails.swing;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -28,7 +31,6 @@ import pvt.filedetails.dal.GUIData;
 import pvt.filedetails.directoryprocessor.Processor;
 import pvt.filedetails.utility.Enums.MenuItems;
 import pvt.filedetails.utility.Enums.ProcessingStatus;
-import java.awt.event.ActionEvent;
 
 /**
  * @author Sahil Jain
@@ -36,7 +38,7 @@ import java.awt.event.ActionEvent;
  */
 public class ExplorerWindow {
 
-	private JFrame frmDirectoryExplorer;
+	private JFrame frameDirectoryExplorer;
 	private JTable jTable;
 	JScrollPane scrollPane;
 	private GUIData guiData;
@@ -46,15 +48,24 @@ public class ExplorerWindow {
 	 * Launch the application.
 	 */
 	public static void launchExplorerWindow(Processor processor) {
-//		EventQueue.invokeLater(new Runnable() {
-		Runnable runnable = new Runnable() {
+		startDirectoryProcessing(processor);
+		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					ExplorerWindow window = new ExplorerWindow(processor);
-					window.frmDirectoryExplorer.setVisible(true);
+					window.frameDirectoryExplorer.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			}
+		});
+	}
+
+	private static void startDirectoryProcessing(Processor processor) {
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				processor.processParentDirectory();
 			}
 		};
 		new Thread(runnable).start();
@@ -66,23 +77,29 @@ public class ExplorerWindow {
 	public ExplorerWindow(Processor processor) {
 		guiData = new GUIData(processor.getSharedResources());
 		initialize(processor);
-
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize(Processor processor) {
-		this.frmDirectoryExplorer = new JFrame();
-		this.frmDirectoryExplorer.setTitle("Directory Explorer");
-		this.frmDirectoryExplorer.setBounds(100, 100, 1215, 754);
-		this.frmDirectoryExplorer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.frmDirectoryExplorer.getContentPane().setLayout(null);
+		this.frameDirectoryExplorer = new JFrame();
+		this.frameDirectoryExplorer.setTitle("Directory Explorer");
+		this.frameDirectoryExplorer.setBounds(100, 100, 1215, 754);
+		this.frameDirectoryExplorer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.frameDirectoryExplorer.getContentPane().setLayout(null);
+
+		this.frameDirectoryExplorer.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				clearData(processor);
+			}
+		});
 
 		JPanel panelInformation = new JPanel();
 		panelInformation.setBackground(SystemColor.control);
 		panelInformation.setBounds(10, 10, 1191, 94);
-		this.frmDirectoryExplorer.getContentPane().add(panelInformation);
+		this.frameDirectoryExplorer.getContentPane().add(panelInformation);
 		panelInformation.setLayout(null);
 
 		JLabel lblDir = new JLabel("Directory: ");
@@ -116,9 +133,11 @@ public class ExplorerWindow {
 		lblOpenedDirectoryValue.setBounds(509, 57, 672, 24);
 		panelInformation.add(lblOpenedDirectoryValue);
 
-		Runnable runnable = new Runnable() {
+		Runnable updateStatusRunnable = new Runnable() {
 			@Override
 			public void run() {
+				lblProcessingStatus.setText(processor.getSharedResources().getProcessingStatus().getProcessingStatus());
+				lblProcessingStatus.updateUI();
 				while (!processor.getSharedResources().getProcessingStatus().equals(ProcessingStatus.COMPLETED)) {
 					try {
 						Thread.sleep(500);
@@ -126,58 +145,66 @@ public class ExplorerWindow {
 						e.printStackTrace();
 					}
 				}
-				lblProcessingStatus.setText(ProcessingStatus.COMPLETED.getProcessingStatus());
+				lblProcessingStatus.setText(processor.getSharedResources().getProcessingStatus().getProcessingStatus());
 				lblProcessingStatus.updateUI();
+				List<String[]> folderContent = guiData
+						.getFolderContent(processor.getParentDirectory().getAbsolutePath());
+				updateTableData(folderContent);
 			}
 		};
-		new Thread(runnable).start();
+		new Thread(updateStatusRunnable).start();
 
 		List<String[]> folderContent = this.guiData.getFolderContent(processor.getParentDirectory().getAbsolutePath());
+		this.updateTableData(folderContent);
 		this.jTable = this.getJTable();
 		this.updateTableData(folderContent);
 		this.scrollPane = new JScrollPane(jTable);
 		this.scrollPane.setBounds(10, 156, 1181, 551);
-		this.frmDirectoryExplorer.getContentPane().add(scrollPane);
+		this.frameDirectoryExplorer.getContentPane().add(scrollPane);
 
 		JPanel panelOperations = new JPanel();
 		panelOperations.setBounds(10, 114, 1181, 32);
-		this.frmDirectoryExplorer.getContentPane().add(panelOperations);
+		this.frameDirectoryExplorer.getContentPane().add(panelOperations);
 		panelOperations.setLayout(null);
 
 		JButton btnCreateFolder = new JButton("Create Folder");
 		btnCreateFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				displayPopUpErrorMessage("Development in progress");
 			}
 		});
 		btnCreateFolder.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
-		btnCreateFolder.setBounds(0, 0, 127, 32);
+		btnCreateFolder.setBounds(0, 0, 150, 32);
 		panelOperations.add(btnCreateFolder);
 
 		JButton btnCreateFile = new JButton("Create File");
 		btnCreateFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				displayPopUpErrorMessage("Development in progress");
 			}
 		});
 		btnCreateFile.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
-		btnCreateFile.setBounds(137, 0, 107, 32);
+		btnCreateFile.setBounds(160, 0, 131, 32);
 		panelOperations.add(btnCreateFile);
 
 		JButton btnDeleteSelected = new JButton("Delete Selected");
 		btnDeleteSelected.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				displayPopUpErrorMessage("Development in progress");
 			}
 		});
 		btnDeleteSelected.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
-		btnDeleteSelected.setBounds(254, 0, 147, 32);
+		btnDeleteSelected.setBounds(301, 0, 174, 32);
 		panelOperations.add(btnDeleteSelected);
 
 		JButton btnRename = new JButton("Rename");
 		btnRename.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				displayPopUpErrorMessage("Development in progress");
 			}
 		});
 		btnRename.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
-		btnRename.setBounds(411, 0, 91, 32);
+		btnRename.setBounds(485, 0, 122, 32);
 		panelOperations.add(btnRename);
 
 		JMenuBar menuBar = prepareMenuBar(processor);
@@ -186,10 +213,18 @@ public class ExplorerWindow {
 		JButton btnReprocess = new JButton("Reprocess");
 		btnReprocess.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				DefaultTableModel model = (DefaultTableModel) getJTable().getModel();
+				if (model.getRowCount() > 0) {
+					model.setRowCount(0);
+				}
+				jTable.setModel(model);
+				model.fireTableDataChanged();
+				startDirectoryProcessing(processor);
+				new Thread(updateStatusRunnable).start();
 			}
 		});
 		btnReprocess.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		btnReprocess.setBounds(512, 0, 107, 32);
+		btnReprocess.setBounds(617, 0, 122, 32);
 		panelOperations.add(btnReprocess);
 	}
 
@@ -201,9 +236,12 @@ public class ExplorerWindow {
 			switch (menuItems) {
 			case PROCESS_ANOTHER_DIRECTORY:
 				// TODO
+				displayPopUpErrorMessage("Tab Development in progress");
 				break;
 			case PROCESS_OTHER_DIRECTORY:
-				// TODO
+				clearData(processor);
+				frameDirectoryExplorer.dispose();
+				InputDirectoryDialogue.launchInputDirectoryDialogue();
 				break;
 			case VIEW_ALL_FILES:
 				this.updateTableData(this.guiData.getAllFileDetails());
@@ -294,5 +332,16 @@ public class ExplorerWindow {
 		this.jTable.getColumn("Size").setCellRenderer(defaultTableCellRenderer);
 		this.jTable.getColumn("File Count").setCellRenderer(defaultTableCellRenderer);
 		return this.jTable;
+	}
+
+	private void clearData(Processor processor) {
+		processor.shutDownProcessor();
+		guiData.clearData();
+		System.out.println("Frame closed");
+	}
+
+	private void displayPopUpErrorMessage(String errorMessage) {
+		final JPanel panel = new JPanel();
+		JOptionPane.showMessageDialog(panel, errorMessage, "Error", JOptionPane.WARNING_MESSAGE);
 	}
 }
