@@ -57,4 +57,15 @@ public class FileUtility {
 		else
 			return fileName.substring(lastIndexOf, fileName.length());
 	}
+
+	public static void deleteGivenFileFolder(File file) {
+		if (file.exists() && file.canWrite()) {
+			if (file.isFile()) {
+				file.delete();
+			} else {
+				// TODO delete directory
+
+			}
+		}
+	}
 }

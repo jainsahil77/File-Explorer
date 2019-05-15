@@ -113,4 +113,14 @@ public class Enums {
 			return this.processingStatusString;
 		}
 	}
+
+	/**
+	 * This enum defines some common dialogue box which are used in the project
+	 * 
+	 * @author Sahil Jain
+	 *
+	 */
+	public enum DialogueBoxType {
+		WARNING, CONFIRMATION, ERROR, SUCCESS
+	}
 }

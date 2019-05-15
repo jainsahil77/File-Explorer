@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,7 +19,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -29,8 +29,11 @@ import javax.swing.table.DefaultTableModel;
 
 import pvt.filedetails.dal.GUIData;
 import pvt.filedetails.directoryprocessor.Processor;
+import pvt.filedetails.utility.Enums.DialogueBoxType;
 import pvt.filedetails.utility.Enums.MenuItems;
 import pvt.filedetails.utility.Enums.ProcessingStatus;
+import pvt.filedetails.utility.FileUtility;
+import pvt.filedetails.utility.SwingUtility;
 
 /**
  * @author Sahil Jain
@@ -170,7 +173,7 @@ public class ExplorerWindow {
 		JButton btnCreateFolder = new JButton("Create Folder");
 		btnCreateFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				displayPopUpErrorMessage("Development in progress");
+				SwingUtility.displayPopUpMessage("Development in progress", DialogueBoxType.ERROR);
 			}
 		});
 		btnCreateFolder.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
@@ -180,7 +183,7 @@ public class ExplorerWindow {
 		JButton btnCreateFile = new JButton("Create File");
 		btnCreateFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				displayPopUpErrorMessage("Development in progress");
+				SwingUtility.displayPopUpMessage("Development in progress", DialogueBoxType.ERROR);
 			}
 		});
 		btnCreateFile.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
@@ -190,7 +193,28 @@ public class ExplorerWindow {
 		JButton btnDeleteSelected = new JButton("Delete Selected");
 		btnDeleteSelected.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				displayPopUpErrorMessage("Development in progress");
+				List<String> selectedFilePaths = SwingUtility.getSelectedFilePaths(jTable);
+				if (!selectedFilePaths.isEmpty()) {
+					int userConfirmation = SwingUtility.displayPopUpMessage(
+							"You are about to delete " + selectedFilePaths.size() + " files/folders. Are you sure?",
+							DialogueBoxType.CONFIRMATION);
+					if (userConfirmation == 0) {
+						for (String pathname : selectedFilePaths) {
+							File file = new File(pathname);
+							FileUtility.deleteGivenFileFolder(file);
+						}
+						int reprocessSelected = SwingUtility.displayPopUpMessage(
+								"Files/Folders successfully deleted. Do you want to reprocess directory?",
+								DialogueBoxType.CONFIRMATION);
+						if (reprocessSelected == 0) {
+							reprocessParentDirectory(processor);
+						}
+					} else {
+						System.out.println("User Declined deletion");
+					}
+				} else {
+					SwingUtility.displayPopUpMessage("No files/folders selected", DialogueBoxType.ERROR);
+				}
 			}
 		});
 		btnDeleteSelected.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
@@ -200,7 +224,7 @@ public class ExplorerWindow {
 		JButton btnRename = new JButton("Rename");
 		btnRename.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				displayPopUpErrorMessage("Development in progress");
+				SwingUtility.displayPopUpMessage("Development in progress", DialogueBoxType.ERROR);
 			}
 		});
 		btnRename.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
@@ -236,12 +260,10 @@ public class ExplorerWindow {
 			switch (menuItems) {
 			case PROCESS_ANOTHER_DIRECTORY:
 				// TODO
-				displayPopUpErrorMessage("Tab Development in progress");
+				SwingUtility.displayPopUpMessage("Tab Development in progress", DialogueBoxType.ERROR);
 				break;
 			case PROCESS_OTHER_DIRECTORY:
-				clearData(processor);
-				frameDirectoryExplorer.dispose();
-				InputDirectoryDialogue.launchInputDirectoryDialogue();
+				reprocessParentDirectory(processor);
 				break;
 			case VIEW_ALL_FILES:
 				this.updateTableData(this.guiData.getAllFileDetails());
@@ -299,6 +321,12 @@ public class ExplorerWindow {
 		return menuBar;
 	}
 
+	private void reprocessParentDirectory(Processor processor) {
+		clearData(processor);
+		frameDirectoryExplorer.dispose();
+		InputDirectoryDialogue.launchInputDirectoryDialogue();
+	}
+
 	private void updateTableData(List<String[]> listNewData) {
 		DefaultTableModel model = (DefaultTableModel) getJTable().getModel();
 		Iterator<String[]> iterator = listNewData.iterator();
@@ -338,16 +366,5 @@ public class ExplorerWindow {
 		processor.shutDownProcessor();
 		guiData.clearData();
 		System.out.println("Frame closed");
-	}
-
-	private void displayPopUpErrorMessage(String errorMessage) {
-		final JPanel panel = new JPanel();
-		JOptionPane.showMessageDialog(panel, errorMessage, "Error", JOptionPane.WARNING_MESSAGE);
-	}
-
-	private void getSelectedTableData() {
-//		getValueAt(int row, int column)
-//		getSelectedRow()
-//		getSelectedColumn()
 	}
 }
