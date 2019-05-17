@@ -78,8 +78,10 @@ public class Processor {
 	/**
 	 * Call sharedResources clear data method for clearing maps and terminating
 	 * threadpool
+	 * 
+	 * @param terminateThreadPool
 	 */
-	public void shutDownProcessor() {
-		this.sharedResources.clearSharedResource();
+	public void clearDataAndShutDownProcessor(boolean terminateThreadPool) {
+		this.sharedResources.clearSharedResource(terminateThreadPool);
 	}
 }

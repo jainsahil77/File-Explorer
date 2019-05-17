@@ -3,6 +3,7 @@
  */
 package pvt.filedetails.utility;
 
+import java.awt.Desktop;
 import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
@@ -58,14 +59,13 @@ public class FileUtility {
 			return fileName.substring(lastIndexOf, fileName.length());
 	}
 
+	/**
+	 * This method deletes the given file/folder.
+	 * 
+	 * @param file
+	 */
 	public static void deleteGivenFileFolder(File file) {
-		if (file.exists() && file.canWrite()) {
-			if (file.isFile()) {
-				file.delete();
-			} else {
-				// TODO delete directory
-
-			}
-		}
+		Desktop desktop = Desktop.getDesktop();
+		desktop.moveToTrash(file);
 	}
 }

@@ -4,14 +4,20 @@
 package pvt.filedetails.swing;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -43,8 +49,9 @@ public class ExplorerWindow {
 
 	private JFrame frameDirectoryExplorer;
 	private JTable jTable;
-	JScrollPane scrollPane;
+	private JLabel lblOpenedDirectoryValue;
 	private GUIData guiData;
+	private String currentOpenDirectoryPath;
 	private static final String COLUMN[] = { "Name", "Path", "Type", "Size", "File Count" };
 
 	/**
@@ -79,6 +86,7 @@ public class ExplorerWindow {
 	 */
 	public ExplorerWindow(Processor processor) {
 		guiData = new GUIData(processor.getSharedResources());
+		this.currentOpenDirectoryPath = processor.getParentDirectory().getAbsolutePath();
 		initialize(processor);
 	}
 
@@ -95,7 +103,7 @@ public class ExplorerWindow {
 		this.frameDirectoryExplorer.addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
 			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-				clearData(processor);
+				clearDataAndShutDownThreadPool(processor, true);
 			}
 		});
 
@@ -131,10 +139,11 @@ public class ExplorerWindow {
 		lblOpenedDirectory.setBounds(344, 57, 155, 24);
 		panelInformation.add(lblOpenedDirectory);
 
-		JLabel lblOpenedDirectoryValue = new JLabel("");
-		lblOpenedDirectoryValue.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
-		lblOpenedDirectoryValue.setBounds(509, 57, 672, 24);
-		panelInformation.add(lblOpenedDirectoryValue);
+		this.lblOpenedDirectoryValue = new JLabel(this.currentOpenDirectoryPath);
+		this.lblOpenedDirectoryValue.setToolTipText(this.currentOpenDirectoryPath);
+		this.lblOpenedDirectoryValue.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
+		this.lblOpenedDirectoryValue.setBounds(509, 57, 672, 24);
+		panelInformation.add(this.lblOpenedDirectoryValue);
 
 		Runnable updateStatusRunnable = new Runnable() {
 			@Override
@@ -150,19 +159,16 @@ public class ExplorerWindow {
 				}
 				lblProcessingStatus.setText(processor.getSharedResources().getProcessingStatus().getProcessingStatus());
 				lblProcessingStatus.updateUI();
-				List<String[]> folderContent = guiData
+				Set<String[]> folderContent = guiData
 						.getFolderContent(processor.getParentDirectory().getAbsolutePath());
 				updateTableData(folderContent);
 			}
 		};
 		new Thread(updateStatusRunnable).start();
 
-		List<String[]> folderContent = this.guiData.getFolderContent(processor.getParentDirectory().getAbsolutePath());
-		this.updateTableData(folderContent);
 		this.jTable = this.getJTable();
-		this.updateTableData(folderContent);
-		this.scrollPane = new JScrollPane(jTable);
-		this.scrollPane.setBounds(10, 156, 1181, 551);
+		JScrollPane scrollPane = new JScrollPane(jTable);
+		scrollPane.setBounds(10, 156, 1181, 551);
 		this.frameDirectoryExplorer.getContentPane().add(scrollPane);
 
 		JPanel panelOperations = new JPanel();
@@ -207,7 +213,7 @@ public class ExplorerWindow {
 								"Files/Folders successfully deleted. Do you want to reprocess directory?",
 								DialogueBoxType.CONFIRMATION);
 						if (reprocessSelected == 0) {
-							reprocessParentDirectory(processor);
+							reprocessDirectory(processor, updateStatusRunnable);
 						}
 					} else {
 						System.out.println("User Declined deletion");
@@ -237,14 +243,8 @@ public class ExplorerWindow {
 		JButton btnReprocess = new JButton("Reprocess");
 		btnReprocess.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				DefaultTableModel model = (DefaultTableModel) getJTable().getModel();
-				if (model.getRowCount() > 0) {
-					model.setRowCount(0);
-				}
-				jTable.setModel(model);
-				model.fireTableDataChanged();
-				startDirectoryProcessing(processor);
-				new Thread(updateStatusRunnable).start();
+				updateCurrentDirectorLabel(processor.getParentDirectory().getAbsolutePath());
+				reprocessDirectory(processor, updateStatusRunnable);
 			}
 		});
 		btnReprocess.setFont(new Font("SansSerif", Font.PLAIN, 15));
@@ -263,15 +263,18 @@ public class ExplorerWindow {
 				SwingUtility.displayPopUpMessage("Tab Development in progress", DialogueBoxType.ERROR);
 				break;
 			case PROCESS_OTHER_DIRECTORY:
-				reprocessParentDirectory(processor);
+				processAnotherDirectory(processor);
 				break;
 			case VIEW_ALL_FILES:
+				updateCurrentDirectorLabel(processor.getParentDirectory().getAbsolutePath());
 				this.updateTableData(this.guiData.getAllFileDetails());
 				break;
 			case VIEW_ALL_FOLDERS:
+				updateCurrentDirectorLabel(processor.getParentDirectory().getAbsolutePath());
 				this.updateTableData(this.guiData.getAllFoldersDetails());
 				break;
 			case VIEW_CONTENT:
+				updateCurrentDirectorLabel(processor.getParentDirectory().getAbsolutePath());
 				this.updateTableData(this.guiData.getFolderContent(processor.getParentDirectory().getAbsolutePath()));
 				break;
 			default:
@@ -321,13 +324,27 @@ public class ExplorerWindow {
 		return menuBar;
 	}
 
-	private void reprocessParentDirectory(Processor processor) {
-		clearData(processor);
+	private void reprocessDirectory(Processor processor, Runnable updateStatusRunnable) {
+		DefaultTableModel model = (DefaultTableModel) getJTable().getModel();
+		if (model.getRowCount() > 0) {
+			model.setRowCount(0);
+		}
+		clearDataAndShutDownThreadPool(processor, false);
+		this.jTable.setModel(model);
+		model.fireTableDataChanged();
+		processor.getSharedResources().setProcessingStatus(ProcessingStatus.PENDING);
+		startDirectoryProcessing(processor);
+		new Thread(updateStatusRunnable).start();
+	}
+
+	private void processAnotherDirectory(Processor processor) {
+		clearDataAndShutDownThreadPool(processor, true);
 		frameDirectoryExplorer.dispose();
 		InputDirectoryDialogue.launchInputDirectoryDialogue();
 	}
 
-	private void updateTableData(List<String[]> listNewData) {
+	private void updateTableData(Set<String[]> listNewData) {
+		System.out.println(listNewData.size());
 		DefaultTableModel model = (DefaultTableModel) getJTable().getModel();
 		Iterator<String[]> iterator = listNewData.iterator();
 		if (model.getRowCount() > 0) {
@@ -350,21 +367,56 @@ public class ExplorerWindow {
 					return false;
 				}
 			};
+			DefaultTableModel contactTableModel = (DefaultTableModel) this.jTable.getModel();
+			contactTableModel.setColumnIdentifiers(COLUMN);
+			this.jTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			DefaultTableCellRenderer defaultTableCellRenderer = new DefaultTableCellRenderer();
+			defaultTableCellRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+			this.jTable.getColumn("Type").setCellRenderer(defaultTableCellRenderer);
+			this.jTable.getColumn("Size").setCellRenderer(defaultTableCellRenderer);
+			this.jTable.getColumn("File Count").setCellRenderer(defaultTableCellRenderer);
+
+			this.jTable.addMouseListener(new MouseAdapter() {
+				public void mousePressed(MouseEvent mouseEvent) {
+					JTable table = (JTable) mouseEvent.getSource();
+					Point point = mouseEvent.getPoint();
+					int row = table.rowAtPoint(point);
+					if (!mouseEvent.isConsumed() && mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1
+							&& table.getSelectedColumn() == 1) {
+						String path = table.getModel().getValueAt(row, 1).toString();
+						System.out.println("Double click: " + path);
+						mouseEvent.consume();
+						File file = new File(path);
+
+						if (file.isFile()) {
+							Desktop desktop = Desktop.getDesktop();
+							// Open a file using the default program for the file type.
+							try {
+								desktop.open(new File(path));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						} else {
+							updateCurrentDirectorLabel(path);
+							updateTableData(guiData.getFolderContent(currentOpenDirectoryPath));
+						}
+					}
+				}
+			});
 		}
-		DefaultTableModel contactTableModel = (DefaultTableModel) this.jTable.getModel();
-		contactTableModel.setColumnIdentifiers(COLUMN);
-		this.jTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		DefaultTableCellRenderer defaultTableCellRenderer = new DefaultTableCellRenderer();
-		defaultTableCellRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-		this.jTable.getColumn("Type").setCellRenderer(defaultTableCellRenderer);
-		this.jTable.getColumn("Size").setCellRenderer(defaultTableCellRenderer);
-		this.jTable.getColumn("File Count").setCellRenderer(defaultTableCellRenderer);
 		return this.jTable;
 	}
 
-	private void clearData(Processor processor) {
-		processor.shutDownProcessor();
+	private void updateCurrentDirectorLabel(String path) {
+		currentOpenDirectoryPath = path;
+		lblOpenedDirectoryValue.setText(currentOpenDirectoryPath);
+		lblOpenedDirectoryValue.setToolTipText(currentOpenDirectoryPath);
+		lblOpenedDirectoryValue.updateUI();
+	}
+
+	private void clearDataAndShutDownThreadPool(Processor processor, boolean terminateThreadPool) {
+		processor.clearDataAndShutDownProcessor(terminateThreadPool);
 		guiData.clearData();
-		System.out.println("Frame closed");
+		System.out.println("Data cleared");
 	}
 }

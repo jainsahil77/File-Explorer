@@ -21,6 +21,13 @@ public class SwingUtility {
 		// Adding a private constructor to hide the implicit public one.
 	}
 
+	/**
+	 * This method displays a pop up dialogue box based the DialogueBoxType
+	 * 
+	 * @param message
+	 * @param dialogueBoxType
+	 * @return integer value returned by dialogue box
+	 */
 	public static int displayPopUpMessage(String message, DialogueBoxType dialogueBoxType) {
 		final JPanel panel = new JPanel();
 		int returnValue = -1;
@@ -44,10 +51,16 @@ public class SwingUtility {
 		return returnValue;
 	}
 
+	/**
+	 * This method returns selected paths from the jTable
+	 * 
+	 * @param jTable
+	 * @return List<Paths>
+	 */
 	public static List<String> getSelectedFilePaths(JTable jTable) {
 		List<String> selectRowsList = new LinkedList<>();
 		if (jTable.isValid() && jTable.isVisible()) {
-			int column = 2;
+			int column = 1;
 			int[] selectedRows = jTable.getSelectedRows();
 			for (int row : selectedRows) {
 				selectRowsList.add(jTable.getModel().getValueAt(row, column).toString());

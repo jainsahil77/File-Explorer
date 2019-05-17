@@ -82,12 +82,17 @@ public class SharedResources {
 	}
 
 	/**
-	 * This method clears all the shared maps and shuts down the threadpool
+	 * This method clears all the shared maps and shuts down the threadpool if the
+	 * variable terminateThreadPool is true
+	 * 
+	 * @param terminateThreadPool
 	 */
-	public void clearSharedResource() {
+	public void clearSharedResource(boolean terminateThreadPool) {
 		this.folderDetails.clear();
 		this.fileDetails.clear();
 		this.folderContent.clear();
-		this.fixedThreadPool.shutdownNow();
+		if (terminateThreadPool) {
+			this.fixedThreadPool.shutdownNow();
+		}
 	}
 }
