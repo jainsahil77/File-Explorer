@@ -446,6 +446,13 @@ public class ExplorerWindow {
 		}
 	}
 
+	/**
+	 * This method clears all the data and shuts down thread pool if
+	 * termkinateThreadPool is true
+	 * 
+	 * @param processor
+	 * @param terminateThreadPool
+	 */
 	private void clearDataAndShutDownThreadPool(Processor processor, boolean terminateThreadPool) {
 		processor.clearDataAndShutDownProcessor(terminateThreadPool);
 		guiData.clearData();
