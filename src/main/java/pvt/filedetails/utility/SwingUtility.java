@@ -51,6 +51,11 @@ public class SwingUtility {
 		return returnValue;
 	}
 
+	public static String displayPopUpQuestionDialogue(String message, String title) {
+		final JPanel panel = new JPanel();
+		return JOptionPane.showInputDialog(panel, message, title, JOptionPane.QUESTION_MESSAGE);
+	}
+
 	/**
 	 * This method returns selected paths from the jTable
 	 * 

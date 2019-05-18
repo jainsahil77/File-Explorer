@@ -199,28 +199,7 @@ public class ExplorerWindow {
 		JButton btnDeleteSelected = new JButton("Delete Selected");
 		btnDeleteSelected.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				List<String> selectedFilePaths = SwingUtility.getSelectedFilePaths(jTable);
-				if (!selectedFilePaths.isEmpty()) {
-					int userConfirmation = SwingUtility.displayPopUpMessage(
-							"You are about to delete " + selectedFilePaths.size() + " files/folders. Are you sure?",
-							DialogueBoxType.CONFIRMATION);
-					if (userConfirmation == 0) {
-						for (String pathname : selectedFilePaths) {
-							File file = new File(pathname);
-							FileUtility.deleteGivenFileFolder(file);
-						}
-						int reprocessSelected = SwingUtility.displayPopUpMessage(
-								"Files/Folders successfully deleted. Do you want to reprocess directory?",
-								DialogueBoxType.CONFIRMATION);
-						if (reprocessSelected == 0) {
-							reprocessDirectory(processor, updateStatusRunnable);
-						}
-					} else {
-						System.out.println("User Declined deletion");
-					}
-				} else {
-					SwingUtility.displayPopUpMessage("No files/folders selected", DialogueBoxType.ERROR);
-				}
+				deleteOperation(processor, updateStatusRunnable);
 			}
 		});
 		btnDeleteSelected.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
@@ -230,7 +209,7 @@ public class ExplorerWindow {
 		JButton btnRename = new JButton("Rename");
 		btnRename.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				SwingUtility.displayPopUpMessage("Development in progress", DialogueBoxType.ERROR);
+				renameOperation(processor, updateStatusRunnable);
 			}
 		});
 		btnRename.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
@@ -412,6 +391,59 @@ public class ExplorerWindow {
 		lblOpenedDirectoryValue.setText(currentOpenDirectoryPath);
 		lblOpenedDirectoryValue.setToolTipText(currentOpenDirectoryPath);
 		lblOpenedDirectoryValue.updateUI();
+	}
+
+	private void renameOperation(Processor processor, Runnable updateStatusRunnable) {
+		List<String> selectedFilePaths = SwingUtility.getSelectedFilePaths(jTable);
+		if (selectedFilePaths.isEmpty()) {
+			SwingUtility.displayPopUpMessage("No row is selected", DialogueBoxType.ERROR);
+		} else if (selectedFilePaths.size() > 1) {
+			SwingUtility.displayPopUpMessage("Select only single row", DialogueBoxType.ERROR);
+		} else {
+			String path = selectedFilePaths.get(0);
+			File file = new File(path);
+			String newName = SwingUtility.displayPopUpQuestionDialogue("Enter new name", "Rename");
+			String newPath = file.getParent() + "/" + newName;
+			if (FileUtility.isValidPathString(newPath)) {
+				boolean renameTo = file.renameTo(new File(newPath));
+				if (renameTo) {
+					int reprocessDir = SwingUtility.displayPopUpMessage(
+							"Rename successfull. Do you want to reprocess directory?", DialogueBoxType.CONFIRMATION);
+					if (reprocessDir == 0) {
+						reprocessDirectory(processor, updateStatusRunnable);
+					}
+				} else {
+					SwingUtility.displayPopUpMessage("Rename Failed.", DialogueBoxType.ERROR);
+				}
+			} else {
+				SwingUtility.displayPopUpMessage("Invalid file/folder name.", DialogueBoxType.ERROR);
+			}
+		}
+	}
+
+	private void deleteOperation(Processor processor, Runnable updateStatusRunnable) {
+		List<String> selectedFilePaths = SwingUtility.getSelectedFilePaths(jTable);
+		if (!selectedFilePaths.isEmpty()) {
+			int userConfirmation = SwingUtility.displayPopUpMessage(
+					"You are about to delete " + selectedFilePaths.size() + " files/folders. Are you sure?",
+					DialogueBoxType.CONFIRMATION);
+			if (userConfirmation == 0) {
+				for (String pathname : selectedFilePaths) {
+					File file = new File(pathname);
+					FileUtility.deleteGivenFileFolder(file);
+				}
+				int reprocessSelected = SwingUtility.displayPopUpMessage(
+						"Files/Folders successfully deleted. Do you want to reprocess directory?",
+						DialogueBoxType.CONFIRMATION);
+				if (reprocessSelected == 0) {
+					reprocessDirectory(processor, updateStatusRunnable);
+				}
+			} else {
+				System.out.println("User Declined deletion");
+			}
+		} else {
+			SwingUtility.displayPopUpMessage("No files/folders selected", DialogueBoxType.ERROR);
+		}
 	}
 
 	private void clearDataAndShutDownThreadPool(Processor processor, boolean terminateThreadPool) {

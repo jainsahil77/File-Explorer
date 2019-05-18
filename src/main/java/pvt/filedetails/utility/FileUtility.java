@@ -5,6 +5,8 @@ package pvt.filedetails.utility;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,6 +44,21 @@ public class FileUtility {
 		} else {
 			return ValidateDirectoryError.INVALID_STRING;
 		}
+	}
+
+	/**
+	 * This method checks if the given string path is valid or not
+	 * 
+	 * @param path
+	 * @return true iff the path is valid
+	 */
+	public static boolean isValidPathString(String path) {
+		try {
+			Paths.get(path);
+		} catch (InvalidPathException | NullPointerException ex) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
