@@ -421,6 +421,13 @@ public class ExplorerWindow {
 		}
 	}
 
+	/**
+	 * This method performs delete operation. After the file/folder is deleted, it
+	 * prompts user if reprocess is required.
+	 * 
+	 * @param processor
+	 * @param updateStatusRunnable
+	 */
 	private void deleteOperation(Processor processor, Runnable updateStatusRunnable) {
 		List<String> selectedFilePaths = SwingUtility.getSelectedFilePaths(jTable);
 		if (!selectedFilePaths.isEmpty()) {
