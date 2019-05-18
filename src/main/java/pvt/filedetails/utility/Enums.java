@@ -123,4 +123,14 @@ public class Enums {
 	public enum DialogueBoxType {
 		WARNING, CONFIRMATION, ERROR, SUCCESS
 	}
+
+	/**
+	 * This enum defines FILE and FOLDER enum
+	 * 
+	 * @author Sahil Jain
+	 *
+	 */
+	public enum FileFolder {
+		FILE, FOLDER
+	}
 }

@@ -36,6 +36,7 @@ import javax.swing.table.DefaultTableModel;
 import pvt.filedetails.dal.GUIData;
 import pvt.filedetails.directoryprocessor.Processor;
 import pvt.filedetails.utility.Enums.DialogueBoxType;
+import pvt.filedetails.utility.Enums.FileFolder;
 import pvt.filedetails.utility.Enums.MenuItems;
 import pvt.filedetails.utility.Enums.ProcessingStatus;
 import pvt.filedetails.utility.FileUtility;
@@ -179,7 +180,7 @@ public class ExplorerWindow {
 		JButton btnCreateFolder = new JButton("Create Folder");
 		btnCreateFolder.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				SwingUtility.displayPopUpMessage("Development in progress", DialogueBoxType.ERROR);
+				createFileFolderOperation(processor, updateStatusRunnable, FileFolder.FOLDER);
 			}
 		});
 		btnCreateFolder.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
@@ -189,7 +190,7 @@ public class ExplorerWindow {
 		JButton btnCreateFile = new JButton("Create File");
 		btnCreateFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				SwingUtility.displayPopUpMessage("Development in progress", DialogueBoxType.ERROR);
+				createFileFolderOperation(processor, updateStatusRunnable, FileFolder.FILE);
 			}
 		});
 		btnCreateFile.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
@@ -222,15 +223,45 @@ public class ExplorerWindow {
 		JButton btnReprocess = new JButton("Reprocess");
 		btnReprocess.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateCurrentDirectorLabel(processor.getParentDirectory().getAbsolutePath());
+				updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
 				reprocessDirectory(processor, updateStatusRunnable);
 			}
 		});
 		btnReprocess.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		btnReprocess.setBounds(617, 0, 122, 32);
 		panelOperations.add(btnReprocess);
+
+		JButton btnBack = new JButton("Back");
+		btnBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO
+				SwingUtility.displayPopUpMessage("Development in progress", DialogueBoxType.ERROR);
+			}
+		});
+		btnBack.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnBack.setBounds(749, 0, 122, 32);
+		panelOperations.add(btnBack);
+
+		JButton btnHome = new JButton("Home");
+		btnHome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Set<String[]> folderContent = guiData
+						.getFolderContent(processor.getParentDirectory().getAbsolutePath());
+				updateTableData(folderContent);
+				updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
+			}
+		});
+		btnHome.setFont(new Font("SansSerif", Font.PLAIN, 15));
+		btnHome.setBounds(881, 0, 122, 32);
+		panelOperations.add(btnHome);
 	}
 
+	/**
+	 * This method prepares menu bar and defines their operations
+	 * 
+	 * @param processor
+	 * @return instance of JMenuBar
+	 */
 	private JMenuBar prepareMenuBar(Processor processor) {
 		ActionListener menutItemActionListener = actionEvent -> {
 			System.out.println("Menu clicked");
@@ -245,15 +276,15 @@ public class ExplorerWindow {
 				processAnotherDirectory(processor);
 				break;
 			case VIEW_ALL_FILES:
-				updateCurrentDirectorLabel(processor.getParentDirectory().getAbsolutePath());
+				updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
 				this.updateTableData(this.guiData.getAllFileDetails());
 				break;
 			case VIEW_ALL_FOLDERS:
-				updateCurrentDirectorLabel(processor.getParentDirectory().getAbsolutePath());
+				updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
 				this.updateTableData(this.guiData.getAllFoldersDetails());
 				break;
 			case VIEW_CONTENT:
-				updateCurrentDirectorLabel(processor.getParentDirectory().getAbsolutePath());
+				updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
 				this.updateTableData(this.guiData.getFolderContent(processor.getParentDirectory().getAbsolutePath()));
 				break;
 			default:
@@ -303,6 +334,13 @@ public class ExplorerWindow {
 		return menuBar;
 	}
 
+	/**
+	 * This method reprocesses the directory and launches a thread for updating
+	 * table
+	 * 
+	 * @param processor
+	 * @param updateStatusRunnable
+	 */
 	private void reprocessDirectory(Processor processor, Runnable updateStatusRunnable) {
 		DefaultTableModel model = (DefaultTableModel) getJTable().getModel();
 		if (model.getRowCount() > 0) {
@@ -316,12 +354,23 @@ public class ExplorerWindow {
 		new Thread(updateStatusRunnable).start();
 	}
 
+	/**
+	 * This method performs process another directory by clearing all data
+	 * structures and terminating all threads and calls input dir dialogue box
+	 * 
+	 * @param processor
+	 */
 	private void processAnotherDirectory(Processor processor) {
 		clearDataAndShutDownThreadPool(processor, true);
 		frameDirectoryExplorer.dispose();
 		InputDirectoryDialogue.launchInputDirectoryDialogue();
 	}
 
+	/**
+	 * This method updates table data based on the given list of new data
+	 * 
+	 * @param listNewData
+	 */
 	private void updateTableData(Set<String[]> listNewData) {
 		System.out.println(listNewData.size());
 		DefaultTableModel model = (DefaultTableModel) getJTable().getModel();
@@ -336,6 +385,12 @@ public class ExplorerWindow {
 		model.fireTableDataChanged();
 	}
 
+	/**
+	 * This method return an instance of JTable with all defined properties and
+	 * columns.
+	 * 
+	 * @return JTable
+	 */
 	private JTable getJTable() {
 		if (this.jTable == null) {
 			this.jTable = new JTable() {
@@ -376,7 +431,7 @@ public class ExplorerWindow {
 								e.printStackTrace();
 							}
 						} else {
-							updateCurrentDirectorLabel(path);
+							updateCurrentDirectoryLabel(path);
 							updateTableData(guiData.getFolderContent(currentOpenDirectoryPath));
 						}
 					}
@@ -386,13 +441,25 @@ public class ExplorerWindow {
 		return this.jTable;
 	}
 
-	private void updateCurrentDirectorLabel(String path) {
+	/**
+	 * This method updates current dir label text and tool tip
+	 * 
+	 * @param path
+	 */
+	private void updateCurrentDirectoryLabel(String path) {
 		currentOpenDirectoryPath = path;
 		lblOpenedDirectoryValue.setText(currentOpenDirectoryPath);
 		lblOpenedDirectoryValue.setToolTipText(currentOpenDirectoryPath);
 		lblOpenedDirectoryValue.updateUI();
 	}
 
+	/**
+	 * This method performs rename operation of selected file/folder. Promts user
+	 * for reprocess if required.
+	 * 
+	 * @param processor
+	 * @param updateStatusRunnable
+	 */
 	private void renameOperation(Processor processor, Runnable updateStatusRunnable) {
 		List<String> selectedFilePaths = SwingUtility.getSelectedFilePaths(jTable);
 		if (selectedFilePaths.isEmpty()) {
@@ -464,5 +531,42 @@ public class ExplorerWindow {
 		processor.clearDataAndShutDownProcessor(terminateThreadPool);
 		guiData.clearData();
 		System.out.println("Data cleared");
+	}
+
+	/**
+	 * This method creates file or folder as per
+	 * 
+	 * @param processor
+	 * @param updateStatusRunnable
+	 */
+	private void createFileFolderOperation(Processor processor, Runnable updateStatusRunnable, FileFolder fileFolder) {
+		String newName = SwingUtility.displayPopUpQuestionDialogue("Name", "Create NEW");
+		String newPath = currentOpenDirectoryPath + "/" + newName;
+		File file = new File(newPath);
+		boolean isCreated = false;
+		switch (fileFolder) {
+		case FILE:
+			try {
+				isCreated = file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			break;
+		case FOLDER:
+			isCreated = file.mkdir();
+			break;
+		default:
+			break;
+		}
+
+		if (isCreated) {
+			int reprocessDir = SwingUtility.displayPopUpMessage(
+					fileFolder + " created. Do you want to reprocess directory?", DialogueBoxType.CONFIRMATION);
+			if (reprocessDir == 0) {
+				reprocessDirectory(processor, updateStatusRunnable);
+			}
+		} else {
+			SwingUtility.displayPopUpMessage("Error occured while creating folder", DialogueBoxType.ERROR);
+		}
 	}
 }
