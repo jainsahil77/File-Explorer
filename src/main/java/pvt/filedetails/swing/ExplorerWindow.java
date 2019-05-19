@@ -104,6 +104,7 @@ public class ExplorerWindow {
 		this.frameDirectoryExplorer.setTitle("Directory Explorer");
 		this.frameDirectoryExplorer.setBounds(100, 100, 1215, 754);
 		this.frameDirectoryExplorer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.frameDirectoryExplorer.setResizable(false);
 		this.frameDirectoryExplorer.getContentPane().setLayout(null);
 
 		this.frameDirectoryExplorer.addWindowListener(new java.awt.event.WindowAdapter() {

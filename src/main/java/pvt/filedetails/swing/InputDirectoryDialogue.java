@@ -59,26 +59,27 @@ public class InputDirectoryDialogue {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		inputDialogueFrame = new JFrame();
-		inputDialogueFrame.setBounds(100, 100, 694, 287);
-		inputDialogueFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.inputDialogueFrame = new JFrame();
+		this.inputDialogueFrame.setBounds(100, 100, 694, 287);
+		this.inputDialogueFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		inputDialogueFrame.getContentPane().setLayout(null);
+		this.inputDialogueFrame.setResizable(false);
 
 		JLabel lblEnterDirectoryPath = new JLabel("Enter Directory Path: ");
 		lblEnterDirectoryPath.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		lblEnterDirectoryPath.setBounds(29, 71, 154, 25);
-		inputDialogueFrame.getContentPane().add(lblEnterDirectoryPath);
+		this.inputDialogueFrame.getContentPane().add(lblEnterDirectoryPath);
 
 		JLabel lblFileExplorer = new JLabel("File Explorer");
 		lblFileExplorer.setHorizontalAlignment(SwingConstants.CENTER);
 		lblFileExplorer.setFont(new Font("Tahoma", Font.BOLD, 20));
 		lblFileExplorer.setBounds(182, 10, 258, 31);
-		inputDialogueFrame.getContentPane().add(lblFileExplorer);
+		this.inputDialogueFrame.getContentPane().add(lblFileExplorer);
 
 		inputDirectoryPath = new JTextField();
 		inputDirectoryPath.setToolTipText("C:\\Sample\\Directory");
 		inputDirectoryPath.setBounds(182, 71, 474, 25);
-		inputDialogueFrame.getContentPane().add(inputDirectoryPath);
+		this.inputDialogueFrame.getContentPane().add(inputDirectoryPath);
 		inputDirectoryPath.setColumns(10);
 
 		JLabel lblValidPathMessage = new JLabel("");
@@ -104,7 +105,7 @@ public class InputDirectoryDialogue {
 		});
 		btnSubmit.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		btnSubmit.setBounds(361, 170, 143, 47);
-		inputDialogueFrame.getContentPane().add(btnSubmit);
+		this.inputDialogueFrame.getContentPane().add(btnSubmit);
 
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
@@ -115,7 +116,7 @@ public class InputDirectoryDialogue {
 
 		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		btnCancel.setBounds(513, 170, 143, 47);
-		inputDialogueFrame.getContentPane().add(btnCancel);
+		this.inputDialogueFrame.getContentPane().add(btnCancel);
 
 		JButton btnValidatePath = new JButton("Validate Path");
 		btnValidatePath.addActionListener(new ActionListener() {
@@ -128,13 +129,13 @@ public class InputDirectoryDialogue {
 		});
 		btnValidatePath.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnValidatePath.setBounds(513, 113, 143, 31);
-		inputDialogueFrame.getContentPane().add(btnValidatePath);
-		inputDialogueFrame.getContentPane().add(lblValidPathMessage);
-		
+		this.inputDialogueFrame.getContentPane().add(btnValidatePath);
+		this.inputDialogueFrame.getContentPane().add(lblValidPathMessage);
+
 		JLabel label = new JLabel("Designed and Developed by Sahil Jain");
 		label.setToolTipText("Designed and Developed by Sahil Jain");
 		label.setFont(new Font("Segoe Print", Font.BOLD, 13));
 		label.setBounds(10, 227, 670, 23);
-		inputDialogueFrame.getContentPane().add(label);
+		this.inputDialogueFrame.getContentPane().add(label);
 	}
 }
