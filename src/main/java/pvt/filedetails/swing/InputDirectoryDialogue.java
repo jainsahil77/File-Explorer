@@ -103,7 +103,7 @@ public class InputDirectoryDialogue {
 			}
 		});
 		btnSubmit.setFont(new Font("Tahoma", Font.PLAIN, 17));
-		btnSubmit.setBounds(361, 193, 143, 47);
+		btnSubmit.setBounds(361, 170, 143, 47);
 		inputDialogueFrame.getContentPane().add(btnSubmit);
 
 		JButton btnCancel = new JButton("Cancel");
@@ -114,7 +114,7 @@ public class InputDirectoryDialogue {
 		});
 
 		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 17));
-		btnCancel.setBounds(513, 193, 143, 47);
+		btnCancel.setBounds(513, 170, 143, 47);
 		inputDialogueFrame.getContentPane().add(btnCancel);
 
 		JButton btnValidatePath = new JButton("Validate Path");
@@ -130,5 +130,11 @@ public class InputDirectoryDialogue {
 		btnValidatePath.setBounds(513, 113, 143, 31);
 		inputDialogueFrame.getContentPane().add(btnValidatePath);
 		inputDialogueFrame.getContentPane().add(lblValidPathMessage);
+		
+		JLabel label = new JLabel("Designed and Developed by Sahil Jain");
+		label.setToolTipText("Designed and Developed by Sahil Jain");
+		label.setFont(new Font("Segoe Print", Font.BOLD, 13));
+		label.setBounds(10, 227, 670, 23);
+		inputDialogueFrame.getContentPane().add(label);
 	}
 }

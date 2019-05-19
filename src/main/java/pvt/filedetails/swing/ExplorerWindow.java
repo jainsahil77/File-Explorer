@@ -95,6 +95,11 @@ public class ExplorerWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize(Processor processor) {
+//		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+//		tabbedPane.setBounds(10, 10, 1181, 697);
+//		tabbedPane.add("Dir1",frameDirectoryExplorer);
+//		tabbedPane.add("Dir2",frameDirectoryExplorer);
+
 		this.frameDirectoryExplorer = new JFrame();
 		this.frameDirectoryExplorer.setTitle("Directory Explorer");
 		this.frameDirectoryExplorer.setBounds(100, 100, 1215, 754);
@@ -169,7 +174,7 @@ public class ExplorerWindow {
 
 		this.jTable = this.getJTable();
 		JScrollPane scrollPane = new JScrollPane(jTable);
-		scrollPane.setBounds(10, 156, 1181, 551);
+		scrollPane.setBounds(10, 156, 1181, 528);
 		this.frameDirectoryExplorer.getContentPane().add(scrollPane);
 
 		JPanel panelOperations = new JPanel();
@@ -231,17 +236,6 @@ public class ExplorerWindow {
 		btnReprocess.setBounds(617, 0, 122, 32);
 		panelOperations.add(btnReprocess);
 
-		JButton btnBack = new JButton("Back");
-		btnBack.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TODO
-				SwingUtility.displayPopUpMessage("Development in progress", DialogueBoxType.ERROR);
-			}
-		});
-		btnBack.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		btnBack.setBounds(749, 0, 122, 32);
-		panelOperations.add(btnBack);
-
 		JButton btnHome = new JButton("Home");
 		btnHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -252,8 +246,14 @@ public class ExplorerWindow {
 			}
 		});
 		btnHome.setFont(new Font("SansSerif", Font.PLAIN, 15));
-		btnHome.setBounds(881, 0, 122, 32);
+		btnHome.setBounds(749, 0, 122, 32);
 		panelOperations.add(btnHome);
+
+		JLabel lblDesignedAndDeveloped = new JLabel("Designed and Developed by Sahil Jain");
+		lblDesignedAndDeveloped.setToolTipText("Designed and Developed by Sahil Jain");
+		lblDesignedAndDeveloped.setFont(new Font("Segoe Print", Font.BOLD, 13));
+		lblDesignedAndDeveloped.setBounds(10, 683, 1181, 24);
+		frameDirectoryExplorer.getContentPane().add(lblDesignedAndDeveloped);
 	}
 
 	/**
