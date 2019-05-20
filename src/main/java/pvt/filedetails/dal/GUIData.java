@@ -5,7 +5,6 @@ package pvt.filedetails.dal;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,7 +50,6 @@ public class GUIData {
 	 * @return list of FileProperties/FolderProperties array object
 	 */
 	public Set<String[]> getFolderContent(String folderPath) {
-//		if (this.folderContentData.isEmpty()) {
 		this.folderContentData.clear();
 		Map<String, List<String>> folderContent = this.sharedResources.getFolderContent();
 		Map<String, FileProperties> fileDetails = this.sharedResources.getFileDetails();
@@ -68,7 +66,6 @@ public class GUIData {
 				}
 			}
 		}
-//		}
 		return this.folderContentData;
 	}
 

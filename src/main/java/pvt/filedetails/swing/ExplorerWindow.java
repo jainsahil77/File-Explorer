@@ -9,7 +9,6 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.SystemColor;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -53,32 +52,25 @@ public class ExplorerWindow {
 	private JLabel lblOpenedDirectoryValue;
 	private GUIData guiData;
 	private String currentOpenDirectoryPath;
-	private static final String COLUMN[] = { "Name", "Path", "Type", "Size", "File Count" };
+	private static final String[] COLUMN = { "Name", "Path", "Type", "Size", "File Count" };
 
 	/**
 	 * Launch the application.
 	 */
 	public static void launchExplorerWindow(Processor processor) {
 		startDirectoryProcessing(processor);
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ExplorerWindow window = new ExplorerWindow(processor);
-					window.frameDirectoryExplorer.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		EventQueue.invokeLater(() -> {
+			try {
+				ExplorerWindow window = new ExplorerWindow(processor);
+				window.frameDirectoryExplorer.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
 
 	private static void startDirectoryProcessing(Processor processor) {
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				processor.processParentDirectory();
-			}
-		};
+		Runnable runnable = processor::processParentDirectory;
 		new Thread(runnable).start();
 	}
 
@@ -95,11 +87,6 @@ public class ExplorerWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize(Processor processor) {
-//		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-//		tabbedPane.setBounds(10, 10, 1181, 697);
-//		tabbedPane.add("Dir1",frameDirectoryExplorer);
-//		tabbedPane.add("Dir2",frameDirectoryExplorer);
-
 		this.frameDirectoryExplorer = new JFrame();
 		this.frameDirectoryExplorer.setTitle("Directory Explorer");
 		this.frameDirectoryExplorer.setBounds(100, 100, 1215, 754);
@@ -152,24 +139,20 @@ public class ExplorerWindow {
 		this.lblOpenedDirectoryValue.setBounds(509, 57, 672, 24);
 		panelInformation.add(this.lblOpenedDirectoryValue);
 
-		Runnable updateStatusRunnable = new Runnable() {
-			@Override
-			public void run() {
-				lblProcessingStatus.setText(processor.getSharedResources().getProcessingStatus().getProcessingStatus());
-				lblProcessingStatus.updateUI();
-				while (!processor.getSharedResources().getProcessingStatus().equals(ProcessingStatus.COMPLETED)) {
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+		Runnable updateStatusRunnable = () -> {
+			lblProcessingStatus.setText(processor.getSharedResources().getProcessingStatus().getProcessingStatus());
+			lblProcessingStatus.updateUI();
+			while (!processor.getSharedResources().getProcessingStatus().equals(ProcessingStatus.COMPLETED)) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-				lblProcessingStatus.setText(processor.getSharedResources().getProcessingStatus().getProcessingStatus());
-				lblProcessingStatus.updateUI();
-				Set<String[]> folderContent = guiData
-						.getFolderContent(processor.getParentDirectory().getAbsolutePath());
-				updateTableData(folderContent);
 			}
+			lblProcessingStatus.setText(processor.getSharedResources().getProcessingStatus().getProcessingStatus());
+			lblProcessingStatus.updateUI();
+			Set<String[]> folderContent = guiData.getFolderContent(processor.getParentDirectory().getAbsolutePath());
+			updateTableData(folderContent);
 		};
 		new Thread(updateStatusRunnable).start();
 
@@ -184,41 +167,27 @@ public class ExplorerWindow {
 		panelOperations.setLayout(null);
 
 		JButton btnCreateFolder = new JButton("Create Folder");
-		btnCreateFolder.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				createFileFolderOperation(processor, updateStatusRunnable, FileFolder.FOLDER);
-			}
-		});
+		btnCreateFolder.addActionListener(
+				actionEvent -> createFileFolderOperation(processor, updateStatusRunnable, FileFolder.FOLDER));
 		btnCreateFolder.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
 		btnCreateFolder.setBounds(0, 0, 150, 32);
 		panelOperations.add(btnCreateFolder);
 
 		JButton btnCreateFile = new JButton("Create File");
-		btnCreateFile.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				createFileFolderOperation(processor, updateStatusRunnable, FileFolder.FILE);
-			}
-		});
+		btnCreateFile.addActionListener(
+				actionEvent -> createFileFolderOperation(processor, updateStatusRunnable, FileFolder.FILE));
 		btnCreateFile.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
 		btnCreateFile.setBounds(160, 0, 131, 32);
 		panelOperations.add(btnCreateFile);
 
 		JButton btnDeleteSelected = new JButton("Delete Selected");
-		btnDeleteSelected.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				deleteOperation(processor, updateStatusRunnable);
-			}
-		});
+		btnDeleteSelected.addActionListener(actionEvent -> deleteOperation(processor, updateStatusRunnable));
 		btnDeleteSelected.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
 		btnDeleteSelected.setBounds(301, 0, 174, 32);
 		panelOperations.add(btnDeleteSelected);
 
 		JButton btnRename = new JButton("Rename");
-		btnRename.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				renameOperation(processor, updateStatusRunnable);
-			}
-		});
+		btnRename.addActionListener(actionEvent -> renameOperation(processor, updateStatusRunnable));
 		btnRename.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
 		btnRename.setBounds(485, 0, 122, 32);
 		panelOperations.add(btnRename);
@@ -227,24 +196,19 @@ public class ExplorerWindow {
 		panelOperations.add(menuBar);
 
 		JButton btnReprocess = new JButton("Reprocess");
-		btnReprocess.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
-				reprocessDirectory(processor, updateStatusRunnable);
-			}
+		btnReprocess.addActionListener(actionEvent -> {
+			updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
+			reprocessDirectory(processor, updateStatusRunnable);
 		});
 		btnReprocess.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		btnReprocess.setBounds(617, 0, 122, 32);
 		panelOperations.add(btnReprocess);
 
 		JButton btnHome = new JButton("Home");
-		btnHome.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Set<String[]> folderContent = guiData
-						.getFolderContent(processor.getParentDirectory().getAbsolutePath());
-				updateTableData(folderContent);
-				updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
-			}
+		btnHome.addActionListener(actionEvent -> {
+			Set<String[]> folderContent = guiData.getFolderContent(processor.getParentDirectory().getAbsolutePath());
+			updateTableData(folderContent);
+			updateCurrentDirectoryLabel(processor.getParentDirectory().getAbsolutePath());
 		});
 		btnHome.setFont(new Font("SansSerif", Font.PLAIN, 15));
 		btnHome.setBounds(749, 0, 122, 32);
@@ -270,7 +234,6 @@ public class ExplorerWindow {
 			MenuItems menuItems = MenuItems.getMenuItemEnum(actionCommand);
 			switch (menuItems) {
 			case PROCESS_ANOTHER_DIRECTORY:
-				// TODO
 				SwingUtility.displayPopUpMessage("Tab Development in progress", DialogueBoxType.ERROR);
 				break;
 			case PROCESS_OTHER_DIRECTORY:
@@ -412,6 +375,7 @@ public class ExplorerWindow {
 			this.jTable.getColumn("File Count").setCellRenderer(defaultTableCellRenderer);
 
 			this.jTable.addMouseListener(new MouseAdapter() {
+				@Override
 				public void mousePressed(MouseEvent mouseEvent) {
 					JTable table = (JTable) mouseEvent.getSource();
 					Point point = mouseEvent.getPoint();
@@ -471,7 +435,7 @@ public class ExplorerWindow {
 			String path = selectedFilePaths.get(0);
 			File file = new File(path);
 			String newName = SwingUtility.displayPopUpQuestionDialogue("Enter new name", "Rename");
-			String newPath = file.getParent() + "/" + newName;
+			String newPath = new File(file.getParent(), newName).getAbsolutePath();
 			if (FileUtility.isValidPathString(newPath)) {
 				boolean renameTo = file.renameTo(new File(newPath));
 				if (renameTo) {
@@ -542,7 +506,7 @@ public class ExplorerWindow {
 	 */
 	private void createFileFolderOperation(Processor processor, Runnable updateStatusRunnable, FileFolder fileFolder) {
 		String newName = SwingUtility.displayPopUpQuestionDialogue("Name", "Create NEW");
-		String newPath = currentOpenDirectoryPath + "/" + newName;
+		String newPath = new File(currentOpenDirectoryPath, newName).getAbsolutePath();
 		File file = new File(newPath);
 		boolean isCreated = false;
 		switch (fileFolder) {

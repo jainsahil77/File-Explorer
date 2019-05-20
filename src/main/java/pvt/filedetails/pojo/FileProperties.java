@@ -28,7 +28,6 @@ public class FileProperties extends GenericFileData {
 	 * @return String[]
 	 */
 	public String[] getFilePropertiesVariableArray() {
-		String[] array = { super.getName(), super.getPath(), this.getType(), String.valueOf(super.getSize()), "" };
-		return array;
+		return new String[] { super.getName(), super.getPath(), this.getType(), String.valueOf(super.getSize()), "" };
 	}
 }

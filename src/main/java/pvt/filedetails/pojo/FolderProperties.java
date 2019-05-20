@@ -42,7 +42,6 @@ public class FolderProperties extends GenericFileData {
 	 * @return String[]
 	 */
 	public String[] getFolderPropertiesVariableArray() {
-		String[] array = { super.getName(), super.getPath(), this.getType(), "", String.valueOf(fileCount) };
-		return array;
+		return new String[] { super.getName(), super.getPath(), this.getType(), "", String.valueOf(fileCount) };
 	}
 }

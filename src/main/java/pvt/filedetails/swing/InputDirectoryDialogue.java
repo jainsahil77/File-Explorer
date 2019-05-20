@@ -6,8 +6,6 @@ package pvt.filedetails.swing;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JButton;
@@ -30,20 +28,17 @@ import pvt.filedetails.utility.FileUtility;
 public class InputDirectoryDialogue {
 
 	private JFrame inputDialogueFrame;
-	private JTextField inputDirectoryPath;
 
 	/**
 	 * Launch the dialogue window.
 	 */
 	public static void launchInputDirectoryDialogue() {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					InputDirectoryDialogue window = new InputDirectoryDialogue();
-					window.inputDialogueFrame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		EventQueue.invokeLater(() -> {
+			try {
+				InputDirectoryDialogue window = new InputDirectoryDialogue();
+				window.inputDialogueFrame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		});
 	}
@@ -66,68 +61,60 @@ public class InputDirectoryDialogue {
 		this.inputDialogueFrame.setResizable(false);
 
 		JLabel lblEnterDirectoryPath = new JLabel("Enter Directory Path: ");
-		lblEnterDirectoryPath.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lblEnterDirectoryPath.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
 		lblEnterDirectoryPath.setBounds(29, 71, 154, 25);
 		this.inputDialogueFrame.getContentPane().add(lblEnterDirectoryPath);
 
 		JLabel lblFileExplorer = new JLabel("File Explorer");
 		lblFileExplorer.setHorizontalAlignment(SwingConstants.CENTER);
-		lblFileExplorer.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblFileExplorer.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 		lblFileExplorer.setBounds(182, 10, 258, 31);
 		this.inputDialogueFrame.getContentPane().add(lblFileExplorer);
 
-		inputDirectoryPath = new JTextField();
+		JTextField inputDirectoryPath = new JTextField();
 		inputDirectoryPath.setToolTipText("C:\\Sample\\Directory");
 		inputDirectoryPath.setBounds(182, 71, 474, 25);
 		this.inputDialogueFrame.getContentPane().add(inputDirectoryPath);
 		inputDirectoryPath.setColumns(10);
 
 		JLabel lblValidPathMessage = new JLabel("");
-		lblValidPathMessage.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		lblValidPathMessage.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
 		lblValidPathMessage.setBounds(182, 113, 310, 31);
 
 		JButton btnSubmit = new JButton("Submit");
-		btnSubmit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String directory = inputDirectoryPath.getText().trim();
-				File directoryFile = new File(directory);
-				ValidateDirectoryError validateDirectory = FileUtility.validateDirectory(directory);
-				if (validateDirectory.equals(ValidateDirectoryError.VALID_DIRECTORY)) {
-					Processor processor = new Processor(directoryFile);
-					ExplorerWindow.launchExplorerWindow(processor);
-					inputDialogueFrame.dispose();
-				} else {
-					lblValidPathMessage.setForeground(Color.RED);
-					lblValidPathMessage.setText(FileUtility.validateDirectory(directory).getErrorMessage());
-					lblValidPathMessage.updateUI();
-				}
+		btnSubmit.addActionListener(actionEvent -> {
+			String directory = inputDirectoryPath.getText().trim();
+			File directoryFile = new File(directory);
+			ValidateDirectoryError validateDirectory = FileUtility.validateDirectory(directory);
+			if (validateDirectory.equals(ValidateDirectoryError.VALID_DIRECTORY)) {
+				Processor processor = new Processor(directoryFile);
+				ExplorerWindow.launchExplorerWindow(processor);
+				inputDialogueFrame.dispose();
+			} else {
+				lblValidPathMessage.setForeground(Color.RED);
+				lblValidPathMessage.setText(FileUtility.validateDirectory(directory).getErrorMessage());
+				lblValidPathMessage.updateUI();
 			}
 		});
-		btnSubmit.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		btnSubmit.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
 		btnSubmit.setBounds(361, 170, 143, 47);
 		this.inputDialogueFrame.getContentPane().add(btnSubmit);
 
 		JButton btnCancel = new JButton("Cancel");
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
+		btnCancel.addActionListener(actionEvent -> System.exit(0));
 
-		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		btnCancel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
 		btnCancel.setBounds(513, 170, 143, 47);
 		this.inputDialogueFrame.getContentPane().add(btnCancel);
 
 		JButton btnValidatePath = new JButton("Validate Path");
-		btnValidatePath.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				lblValidPathMessage.setForeground(Color.GREEN);
-				lblValidPathMessage
-						.setText(FileUtility.validateDirectory(inputDirectoryPath.getText().trim()).getErrorMessage());
-				lblValidPathMessage.updateUI();
-			}
+		btnValidatePath.addActionListener(actionEvent -> {
+			lblValidPathMessage.setForeground(Color.GREEN);
+			lblValidPathMessage
+					.setText(FileUtility.validateDirectory(inputDirectoryPath.getText().trim()).getErrorMessage());
+			lblValidPathMessage.updateUI();
 		});
-		btnValidatePath.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnValidatePath.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
 		btnValidatePath.setBounds(513, 113, 143, 31);
 		this.inputDialogueFrame.getContentPane().add(btnValidatePath);
 		this.inputDialogueFrame.getContentPane().add(lblValidPathMessage);
