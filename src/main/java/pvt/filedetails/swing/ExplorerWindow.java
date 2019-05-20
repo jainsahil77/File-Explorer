@@ -355,7 +355,7 @@ public class ExplorerWindow {
 	 * 
 	 * @return JTable
 	 */
-	private JTable getJTable() {
+	private synchronized JTable getJTable() {
 		if (this.jTable == null) {
 			this.jTable = new JTable() {
 				private static final long serialVersionUID = 7739801596675122989L;
