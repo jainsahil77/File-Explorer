@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Scanner;
 
 import pvt.filedetails.directoryprocessor.Processor;
+import pvt.filedetails.springboot.SpringBootMain;
 import pvt.filedetails.swing.InputDirectoryDialogue;
 import pvt.filedetails.utility.GenericConfigurations;
 
@@ -33,6 +34,7 @@ public class Main {
 					InputDirectoryDialogue.launchInputDirectoryDialogue();
 					break;
 				case REST_API:
+					SpringBootMain.startSpringBootRest(args);
 					System.out.println("Sorry. Rest api development is still underway...");
 					break;
 				default:
