@@ -27,7 +27,7 @@ public class FileUtility {
 	 * This method validates whether given directory is valid or not
 	 * 
 	 * @param directory
-	 * @return true iff the given path is a directory
+	 * @return ValidateDirectoryError enum
 	 */
 	public static ValidateDirectoryError validateDirectory(String directory) {
 		File file = new File(directory);
